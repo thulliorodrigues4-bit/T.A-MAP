@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d18">
+  <title>Thullio & Amanda ❤️</title>
+
+  <link href="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.css" rel="stylesheet">
+  <script src="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #080d18;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      position: absolute;
+      z-index: 2;
+      top: 18px;
+      left: 16px;
+      right: 16px;
+      padding: 17px;
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #101827eF;
+      backdrop-filter: blur(18px);
+    }
+    h1 { font-size: 21px; margin: 0 0 5px; }
+    header p { color: #aab8cc; font-size: 12px; margin: 0; }
+    #map { position: absolute; inset: 0; }
+    .bottom {
+      position: absolute;
+      z-index: 2;
+      bottom: 22px;
+      left: 16px;
+      right: 16px;
+      padding: 17px;
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #101827f2;
+      backdrop-filter: blur(18px);
+    }
+    .person {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0 15px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 13px currentColor;
+    }
+    .blue { color: #63a5ff; background: #63a5ff; }
+    .pink { color: #ff76ac; background: #ff76ac; }
+    .name { font-weight: 650; font-size: 14px; }
+    .city { font-size: 12px; color: #aab8cc; margin-top: 3px; }
+    .note { color: #8392a8; font-size: 10px; margin-top: 10px; }
+    .maplibregl-popup-content {
+      background: #101827; color: white; border-radius: 12px;
+    }
+    .maplibregl-popup-tip { border-top-color: #101827; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <header>
+    <h1>🌎 Thullio & Amanda</h1>
+    <p>Dois lugares, uma história ❤️</p>
+  </header>
+
+  <section class="bottom">
+    <div class="person">
+      <span class="dot blue"></span>
+      <div>
+        <div class="name">Thullio</div>
+        <div class="city">Barra do Garças · MT</div>
+      </div>
+    </div>
+    <div class="person">
+      <span class="dot pink"></span>
+      <div>
+        <div class="name">Amanda ❤️</div>
+        <div class="city">Jaraguá do Sul · SC</div>
+      </div>
+    </div>
+    <div class="note">
+      Pontos iniciais das cidades · GPS ainda não conectado
+    </div>
+  </section>
+
+  <script>
+    const thullio = [-52.26, -15.89];
+    const amanda = [-49.07, -26.49];
+
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/dark',
+      center: [-50.6, -21.1],
+      zoom: 3.7,
+      attributionControl: true
+    });
+
+    map.addControl(
+      new maplibregl.NavigationControl({ showCompass: false }),
+      'bottom-right'
+    );
+
+    function marker(coords, color, title, description) {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        width:22px;height:22px;border-radius:50%;
+        background:${color};border:4px solid white;
+        box-shadow:0 0 20px ${color};cursor:pointer;
+      `;
+      new maplibregl.Marker({ element: el })
+        .setLngLat(coords)
+        .setPopup(new maplibregl.Popup({ offset: 18 })
+          .setHTML(`<strong>${title}</strong><br>${description}`))
+        .addTo(map);
+    }
+
+    map.on('load', () => {
+      map.addSource('distance-line', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [thullio, amanda]
+          }
+        }
+      });
+
+      map.addLayer({
+        id: 'distance-line',
+        type: 'line',
+        source: 'distance-line',
+        paint: {
+          'line-color': '#e76ca5',
+          'line-width': 2,
+          'line-dasharray': [2, 2],
+          'line-opacity': 0.9
+        }
+      });
+
+      marker(thullio, '#63a5ff', 'Thullio', 'Barra do Garças · MT');
+      marker(amanda, '#ff76ac', 'Amanda ❤️', 'Jaraguá do Sul · SC');
+    });
+  </script>
+</body>
+</html>

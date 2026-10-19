@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T.A-MAP | Thullio & Amanda</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #080b12;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      padding: 20px;
+      background: #101521;
+      border-bottom: 1px solid #252d3b;
+    }
+    h1 { margin: 0 0 7px; font-size: 23px; }
+    header p { margin: 0; color: #aab5c8; font-size: 14px; }
+    #map { height: 68vh; min-height: 380px; width: 100%; }
+    .panel { padding: 16px; }
+    .person {
+      background: #141b29;
+      border: 1px solid #283347;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .person strong { display: block; margin-bottom: 5px; }
+    .person span { color: #aab5c8; font-size: 13px; }
+    button {
+      width: 100%;
+      padding: 15px;
+      border: 0;
+      border-radius: 12px;
+      background: #3478f6;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+    #status { color: #b7c5d9; font-size: 13px; line-height: 1.5; }
+    footer { padding: 12px 16px 24px; color: #8592a8; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌎 T.A-MAP</h1>
+    <p>Thullio & Amanda · Nosso mundo, nossa conexão</p>
+  </header>
+
+  <div id="map"></div>
+
+  <section class="panel">
+    <div class="person">
+      <strong>📍 Thullio</strong>
+      <span>Barra do Garças · MT</span>
+    </div>
+    <div class="person">
+      <strong>💗 Amanda</strong>
+      <span>Jaraguá do Sul · SC</span>
+    </div>
+    <button id="gps">Autorizar meu GPS</button>
+    <p id="status">
+      O mapa inicial está carregando. O compartilhamento real
+      depende da configuração segura das contas e do banco de dados.
+    </p>
+  </section>
+
+  <footer>
+    A localização só deve ser compartilhada com autorização.
+    Este protótipo ainda não envia coordenadas para outra pessoa.
+  </footer>
+
+  <script src="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.js"></script>
+  <script>
+    const status = document.getElementById('status');
+
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://demotiles.maplibre.org/globe.json',
+      center: [-52, -18],
+      zoom: 3
+    });
+
+    map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    document.getElementById('gps').addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        status.textContent = 'Seu navegador não oferece suporte ao GPS.';
+        return;
+      }
+
+      status.textContent = 'Solicitando autorização de localização...';
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          map.flyTo({
+            center: [lng, lat],
+            zoom: 12
+          });
+
+          status.textContent =
+            'GPS autorizado neste aparelho. Sua localização ainda não está sendo compartilhada com Amanda.';
+        },
+        () => {
+          status.textContent =
+            'Não foi possível obter a localização. Confira a permissão de GPS do navegador.';
+        },
+        { enableHighAccuracy: true, timeout: 15000 }
+      );
+    });
+  </script>
+</body>
+</html>
